@@ -1,0 +1,16 @@
+{
+    "edit_request_id": "DYP2J9CYL7X46RLQ_1764315775.464959",
+    "edit_id": "gemini-3-pro_cadquery-script_1770976972.982993",
+    "start_time": 1770976972.982993,
+    "end_time": 1770977670.02117,
+    "filename": "/Users/perrett/fusion_data/model_outputs/edit_v2/cadquery_script/gemini-3-pro_cadquery-script/val_edit_all/gemini-3-pro_cadquery-script_1770976972.982993/brep_end/1770976972.982993/tmp.step",
+    "isHuman": false,
+    "userId": "gemini-3-pro_cadquery-script",
+    "token_counts": {
+        "input_tokens": 56738,
+        "output_tokens": 4980,
+        "thinking_tokens": 56817,
+        "total_tokens": 118535,
+        "cost_estimate": 0.85504
+    }
+}

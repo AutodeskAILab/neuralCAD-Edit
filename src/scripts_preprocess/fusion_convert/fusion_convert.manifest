@@ -1,0 +1,14 @@
+{
+	"autodeskProduct":	"Fusion",
+	"type":	"script",
+	"id":	"a49a30ca-1009-4a66-98b2-e70e3f09f681",
+	"author":	"toby.perrett@autodesk.com",
+	"description":	{
+		"":	""
+	},
+	"version":	"0.0",
+	"runOnStartup":	false,
+	"supportedOS":	"mac",
+	"editEnabled":	true,
+	"iconFilename":	"AddInIcon.svg"
+}

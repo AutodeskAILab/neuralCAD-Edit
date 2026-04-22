@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>neuralCAD-Edit Benchmark | Autodesk Research</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── AUTODESK TOKENS ── */
+    :root {
+      --adsk-blue:       #0696D7;
+      --adsk-blue-dark:  #1858A8;
+      --adsk-blue-light: #E8F4FB;
+      --adsk-black:      #1A1A1A;
+      --adsk-dark:       #3C3C3C;
+      --adsk-mid:        #696969;
+      --adsk-border:     #D4D4D4;
+      --adsk-bg-light:   #F5F5F5;
+      --adsk-white:      #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--adsk-white);
+      color: var(--adsk-dark);
+      font-family: 'ArtifaktElement', 'Artifakt Element', Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--adsk-blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--adsk-white);
+      border-bottom: 1px solid var(--adsk-border);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      gap: 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-site-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--adsk-black);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .nav-site-title:hover { text-decoration: none; }
+    .nav-divider {
+      width: 1px;
+      height: 22px;
+      background: var(--adsk-border);
+      flex-shrink: 0;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.75rem;
+      list-style: none;
+      flex: 1;
+    }
+    .nav-links a {
+      color: var(--adsk-dark);
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--adsk-blue); text-decoration: none; }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--adsk-bg-light);
+      border-bottom: 1px solid var(--adsk-border);
+      padding: 5rem 2rem 3rem;
+    }
+    .hero-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .eyebrow {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--adsk-blue);
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--adsk-black);
+      letter-spacing: -0.01em;
+      margin-bottom: 1.1rem;
+      text-align: center;
+    }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--adsk-mid);
+      margin-bottom: 2.25rem;
+      text-align: center;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.35rem;
+      border-radius: 2px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--adsk-blue);
+      color: #fff;
+      border: 2px solid var(--adsk-blue);
+    }
+    .btn-primary:hover { background: var(--adsk-blue-dark); border-color: var(--adsk-blue-dark); text-decoration: none; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--adsk-blue);
+      border: 2px solid var(--adsk-blue);
+    }
+    .btn-secondary:hover { background: var(--adsk-blue-light); text-decoration: none; }
+    .btn-disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    .hero-img-wrap {
+      /* margin-top: 1rem; */
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .img-wrap {
+      /* margin-top: 1rem; */
+      /* display: flex; */
+      margin: 2rem auto;
+      /* margin-bottom: 2rem; */
+    }
+    .hero-img {
+      width: 100%;
+      max-width: 1200px;
+      display: block;
+      /* border: 1px solid var(--adsk-border); */
+      background: #fff;
+      padding: 15px;
+    }
+
+    /* ── STATS STRIP ── */
+    .stats {
+      background: var(--adsk-white);
+      border-bottom: 1px solid var(--adsk-border);
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stat {
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+      padding: 2rem 1rem;
+      border-right: 1px solid var(--adsk-border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--adsk-blue);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--adsk-mid);
+      margin-top: 0.35rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── GENERIC SECTION ── */
+    .section {
+      padding: 4.5rem 2rem;
+      border-bottom: 1px solid var(--adsk-border);
+    }
+    .section:last-of-type { border-bottom: none; }
+    .section-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .section-alt { background: var(--adsk-bg-light); }
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--adsk-black);
+      margin-bottom: 1rem;
+      letter-spacing: -0.01em;
+    }
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--adsk-black);
+      margin-bottom: 0.5rem;
+    }
+    .section-lead {
+      font-size: 1rem;
+      color: var(--adsk-dark);
+      /* max-width: 760px; */
+      margin-bottom: 1rem;
+    }
+    .section-lead strong { color: var(--adsk-black); }
+    .blue-rule {
+      width: 48px;
+      height: 3px;
+      background: var(--adsk-blue);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── GALLERY IMAGE ── */
+    .img-block {
+      margin: 2rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .img-block img {
+      width: 100%;
+      max-width: 900px;
+      display: block;
+      border: 1px solid var(--adsk-border);
+      background: #fff;
+    }
+    .img-caption {
+      font-size: 0.82rem;
+      color: var(--adsk-mid);
+      padding: 0.6rem 0 0;
+      font-style: italic;
+    }
+
+    /* ── GALLERY TABLE ── */
+    .gallery-table-wrap {
+      margin: 2rem auto;
+    }
+    .gallery-table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .gallery-table thead th {
+      padding: 0.65rem 1rem;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--adsk-mid);
+      background: var(--adsk-white);
+      border: 1px solid var(--adsk-border);
+    }
+    .gallery-table thead th:first-child {
+      width: 120px;
+    }
+    .gallery-table tbody td {
+      padding: 0.5rem;
+      border: 1px solid var(--adsk-border);
+      vertical-align: top;
+      background: var(--adsk-white);
+    }
+    .gallery-table tbody td:first-child {
+      width: 120px;
+      font-weight: 600;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .gallery-table tbody tr:nth-child(even) td {
+      background: #fafafa;
+    }
+    .media-cell {
+      display: block;
+    }
+    .media-cell video {
+      width: 100%;
+      height: auto;
+      max-height: 220px;
+      display: block;
+      background: #000;
+    }
+    .media-placeholder {
+      height: 200px;
+      width: 280px;
+      background: var(--adsk-bg-light);
+      border: 2px dashed var(--adsk-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--adsk-mid);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* ── CALLOUT / HIGHLIGHT BOX ── */
+    .callout {
+      background: var(--adsk-blue-light);
+      border-left: 4px solid var(--adsk-blue);
+      padding: 1.1rem 1.4rem;
+      margin: 2rem 0;
+      max-width: 760px;
+    }
+    .callout p {
+      font-size: 0.95rem;
+      color: var(--adsk-black);
+      margin: 0;
+    }
+
+    /* ── RESULTS SCREENSHOT ── */
+    .table-img {
+      width: 100%;
+      max-width: 900px;
+      display: block;
+      border: 1px solid var(--adsk-border);
+      margin: 2rem auto;
+      background: #fff;
+    }
+
+    /* ── LEADERBOARD TABLE ── */
+    .leaderboard-wrap {
+      margin: 2rem auto;
+      width: 100%;
+      overflow-x: auto;
+      text-align: center;
+    }
+    .leaderboard-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--adsk-black);
+      margin-bottom: 0.75rem;
+    }
+    .leaderboard-caption {
+      font-size: 0.8rem;
+      color: var(--adsk-mid);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .leaderboard-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.85rem;
+      margin: 0 auto;
+    }
+    .leaderboard-table th {
+      padding: 0.5rem 0.75rem;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--adsk-mid);
+      background: var(--adsk-white);
+      border: 1px solid var(--adsk-border);
+      white-space: nowrap;
+    }
+    .leaderboard-table th.group-header {
+      background: var(--adsk-bg-light);
+      color: var(--adsk-dark);
+      font-size: 0.75rem;
+    }
+    .leaderboard-table th:first-child {
+      text-align: left;
+    }
+    .leaderboard-table td {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--adsk-border);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .leaderboard-table td:first-child {
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+      padding-left: 1rem;
+    }
+    .leaderboard-table tr:nth-child(even) td { background: #fafafa; }
+    .leaderboard-table .row-requestor td { color: #b0b0b0; }
+    .leaderboard-table .row-requestor td:first-child { color: #949494; }
+    .leaderboard-table .row-baseline td { color: #a0a0a0; }
+    .leaderboard-table .row-baseline td:first-child { color: #707070; }
+    .leaderboard-table .row-claude td:first-child   { color: #CF917D; }
+    .leaderboard-table .row-gemini td:first-child   { color: #759CE3; }
+    .leaderboard-table .row-gpt td:first-child      { color: #6EB3A1; }
+
+    /* ── DIFFICULTY LABELS ── */
+    .difficulty-easy   { color: rgb(89, 163, 92);  font-weight: 600; }
+    .difficulty-medium { color: rgb(227, 163, 64); font-weight: 600; }
+    .difficulty-hard   { color: rgb(217, 99, 99);  font-weight: 600; }
+
+    /* ── RESOURCES GRID ── */
+    .resources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .resource-card {
+      background: var(--adsk-white);
+      border: 1px solid var(--adsk-border);
+      padding: 1.5rem;
+      text-decoration: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      display: block;
+    }
+    .resource-card:hover {
+      border-color: var(--adsk-blue);
+      box-shadow: 0 2px 12px rgba(6, 150, 215, 0.1);
+      text-decoration: none;
+    }
+    .resource-type {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--adsk-blue);
+      margin-bottom: 0.5rem;
+    }
+    .resource-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--adsk-black);
+      margin-bottom: 0.4rem;
+    }
+    .resource-desc {
+      font-size: 0.85rem;
+      color: var(--adsk-mid);
+      line-height: 1.5;
+    }
+    .resource-coming {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--adsk-mid);
+      background: var(--adsk-bg-light);
+      border: 1px solid var(--adsk-border);
+      padding: 0.2rem 0.55rem;
+      border-radius: 2px;
+    }
+
+    /* ── RESULTS GIF TABLE ── */
+    .results-table-wrap {
+      margin: 2rem auto;
+      overflow-x: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .results-table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+    }
+    .results-table th {
+      padding: 0.6rem 0.75rem;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--adsk-mid);
+      background: var(--adsk-white);
+      border: 1px solid var(--adsk-border);
+      white-space: nowrap;
+    }
+    .results-table th.col-baseline  { color: #707070; }
+    .results-table th.col-requestor { color: #949494; }
+    .results-table th.col-claude    { color: #CF917D; }
+    .results-table th.col-gemini    { color: #759CE3; }
+    .results-table th.col-gpt       { color: #6EB3A1; }
+    .results-table td {
+      border: 1px solid var(--adsk-border);
+      padding: 0.5rem;
+      background: var(--adsk-white);
+      vertical-align: middle;
+      text-align: center;
+    }
+    .results-table tr:nth-child(even) td { background: #fafafa; }
+    .results-table td img.result-gif {
+      width: 100%;
+      max-width: 160px;
+      display: block;
+      margin: 0 auto;
+      background: #fff;
+    }
+    .results-table td.empty-cell {
+      background: var(--adsk-bg-light);
+      color: var(--adsk-border);
+      font-size: 1.2rem;
+      min-width: 80px;
+    }
+
+    /* ── CITATION BOX ── */
+    .cite-wrap {
+      margin-top: 3rem;
+      border: 1px solid var(--adsk-border);
+      max-width: 760px;
+    }
+    .cite-header {
+      background: var(--adsk-bg-light);
+      border-bottom: 1px solid var(--adsk-border);
+      padding: 0.65rem 1.25rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--adsk-mid);
+    }
+    .cite-body {
+      padding: 1.25rem;
+    }
+    .cite-body pre {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      color: var(--adsk-dark);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── CONTACT ── */
+    .contact-list {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
+    .contact-chip {
+      display: inline-block;
+      padding: 0.45rem 1rem;
+      border: 1px solid var(--adsk-border);
+      color: var(--adsk-blue);
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: border-color 0.15s;
+    }
+    .contact-chip:hover { border-color: var(--adsk-blue); background: var(--adsk-blue-light); text-decoration: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--adsk-black);
+      color: #999;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      font-size: 0.82rem;
+    }
+    footer a { color: #ccc; }
+    footer a:hover { color: #fff; text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-site-title" href="#">neuralCAD-Edit</a>
+  <div class="nav-divider"></div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#requests">Requests</a></li>
+    <li><a href="#evaluation">Evaluation</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#resources">Resources</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1>neuralCAD-Edit<br><span style="font-size:0.65em; font-weight:400; color:var(--adsk-mid)">An Expert Benchmark for Multimodal-Instructed 3D CAD Model Editing</span></h1>
+    <p style="text-align:center; font-size:1.2rem; color:var(--adsk-mid); margin-bottom:0.5rem;">
+      <a href="https://tobyperrett.github.io/" target="_blank" rel="noopener">Toby Perrett</a> &nbsp;·&nbsp;
+      <a href="https://www.research.autodesk.com/people/matt-bouchard/" target="_blank" rel="noopener">Matthew Bouchard</a> &nbsp;·&nbsp;
+      <a href="https://wpmccarthy.com/" target="_blank" rel="noopener">William McCarthy</a>
+    </p>
+    <p style="text-align:center; font-size:1rem; margin-bottom:1.5rem;">
+      <a href="https://www.research.autodesk.com/" target="_blank" rel="noopener" style="color:var(--adsk-mid); font-weight:500;">Autodesk Research</a>
+    </p>
+    <div class="hero-actions" style="justify-content:center">
+      <a href="https://arxiv.org/abs/2604.16170" class="btn btn-primary" target="_blank" rel="noopener">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+        Paper
+      </a>
+      <a href="https://github.com/AutodeskAILab/neuralCAD-Edit" class="btn btn-secondary" target="_blank" rel="noopener">
+        <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        Code
+      </a>
+      <a href="https://huggingface.co/datasets/autodesk/neuralCAD-Edit" class="btn btn-secondary" target="_blank" rel="noopener">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+        Download Data
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- STATS
+<div class="stats">
+  <div class="stat">
+    <div class="stat-number">192</div>
+    <div class="stat-label">Editing requests</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">384</div>
+    <div class="stat-label">Expert edits</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">30K</div>
+    <div class="stat-label">Logged events</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">10</div>
+    <div class="stat-label">CAD engineers</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">4</div>
+    <div class="stat-label">Modality levels</div>
+  </div>
+</div> -->
+
+<!-- OVERVIEW -->
+<section id="overview" class="section">
+  <div class="section-inner">
+    <div class="blue-rule"></div>
+    <h2>Overview</h2>
+    <p class="section-lead">
+      <strong>neuralCAD-Edit</strong> is a benchmark of 3D CAD editing ability, designed to assess the ability of AI to follow editing requests provided by users. The dataset consists of 192 multimodal <em>editing requests</em> (including video, text, and drawings) and 384 <em>edits</em> collected from ten expert consenting CAD designers specifically for this benchmark. Input CAD models are sourced from the <a href="https://github.com/AutodeskAILab/Fusion360GalleryDataset" target="_blank" rel="noopener">Fusion Gallery Dataset</a>, and reflect a range of single-body and assembly models, with and without parametric design histories.
+    </p>
+    <div class="img-wrap">
+      <img src="img/fig_1@2x.png" alt="neuralCAD-Edit benchmark overview" class="hero-img" />
+      <p class="img-caption">Expert CAD users requested edits to CAD models, in a number of different modality combinations. These edits were carried out by the original requestor and one other CAD expert.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REQUESTS -->
+<section id="requests" class="section section-alt">
+  <div class="section-inner">
+    <div class="blue-rule"></div>
+    <h2>Multimodal editing requests</h2>
+    <p class="section-lead">
+      Professional CAD engineers don't describe edits by typing in a text box. They interact with models, point at specific faces and edges, produce hand-drawn markup, and talk through the changes they want to see. <strong>neuralCAD-Edit</strong> is the first CAD benchmark that captures these natural ways of communicating. We recorded ten consenting expert designers making <em>requests</em> to edit 3D CAD models in Autodesk Fusion.
+    </p>
+
+    <div class="gallery-table-wrap">
+      <table class="gallery-table">
+        <thead>
+          <tr>
+            <th>Request Modality</th>
+            <th>Editing request</th>
+            <th>Human Groundtruth Edit (Requestor)</th>
+            <th>Human Baseline Edit (Other Expert)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1: F332D3FXML85WLR2 -->
+          <tr>
+            <td>Interactive<br/> + <br/>Static Drawings<br/><br/><span class="difficulty-hard">Hard</span></td>
+            <td>
+              <div class="media-cell">
+                <video controls loop muted playsinline>
+                  <source src="img/videos/F332D3FXML85WLR2_1770192609.750378_30_720_audio.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_F332D3FXML85WLR2_1770193093.080414.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_4S7JQK6ZQMAD25GL_1770285103.164426.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 2: B7A2N74ZJBF9MZHU -->
+          <tr>
+            <td>Interactive<br/> + <br/>Temporary Drawings<br/><br/><span class="difficulty-easy">Easy</span></td>
+            <td>
+              <div class="media-cell">
+                <video controls loop muted playsinline>
+                  <source src="img/videos/B7A2N74ZJBF9MZHU_1770251861.898911_30_720_audio.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_B7A2N74ZJBF9MZHU_1770251945.4981608.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_DYP2J9CYL7X46RLQ_1770358371.309453.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 3: 3YH2WFSRM22W7DKT -->
+          <tr>
+            <td>Interactive<br/><br/><span class="difficulty-hard">Hard</span></td>
+            <td>
+              <div class="media-cell">
+                <video controls loop muted playsinline>
+                  <source src="img/videos/3YH2WFSRM22W7DKT_1769160931.493333_30_720_audio.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_3YH2WFSRM22W7DKT_1769161797.3969889.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_SUJ2G2UMJQR7PMBX_1770176575.731947.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+          </tr>
+          <!-- Row 4: SUJ2G2UMJQR7PMBX -->
+          <tr>
+            <td>Text<br/><br/><span class="difficulty-medium">Medium</span></td>
+            <td style="padding:15px">
+              <div class="media-cell">
+                <video controls loop muted playsinline style="max-height:300px">
+                  <source src="img/videos/SUJ2G2UMJQR7PMBX_1759209987.785593_30_720_audio.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_SUJ2G2UMJQR7PMBX_1759210287.584769.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+            <td>
+              <div class="media-cell">
+                <video autoplay loop muted playsinline>
+                  <source src="img/videos/frame_videos/edit_DYP2J9CYL7X46RLQ_1759860164.3991418.mp4" type="video/mp4">
+                </video>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="img-caption">Example requests and edits. Requestors asked for <span class="difficulty-easy">easy</span>, <span class="difficulty-medium">medium</span>, and <span class="difficulty-hard">hard</span>, edits that they expected to take 2, 5, and 10 minutes to complete. Screenshots and commands of edits were logged.</p>
+    </div>
+
+    <!-- <div class="callout"> -->
+    <p>We found that including drawings in requests allowed requestors to communicate larger changes and resulted in higher quality edits.</p>
+    <!-- </div> -->
+  </div>
+</section>
+
+<!-- EVALUATION -->
+<section id="evaluation" class="section">
+  <div class="section-inner">
+    <div class="blue-rule"></div>
+    <h2>Benchmarking frontier models</h2>
+    <p class="section-lead">
+      Each request was carried out by the original requestor and one additional CAD expert, providing both a ground-truth model for computing automatic metrics and a human baseline of CAD editing performance. We ran GPT 5.2, Gemini 3 Pro, and Claude Sonnet 4.5 on the full set of editing requests, allowing models to inspect and refine their outputs up to 10 times. </strong>
+    </p>
+    <div class="results-table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th style="width:13%">Initial model</th>
+            <th class="col-requestor" style="width:13%">Human Groundtruth<br>(requestor)</th>
+            <th class="col-baseline" style="width:13%">Human Baseline<br>(other expert)</th>
+            <th class="col-claude" style="width:13%">Claude Sonnet 4.5</th>
+            <th class="col-gemini" style="width:13%">Gemini 3 Pro</th>
+            <th class="col-gpt" style="width:13%">GPT-5.2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1: SUJ2G2UMJQR7PMBX_1759209987 -->
+          <tr>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/SUJ2G2UMJQR7PMBX_1759210034.gif" alt="Initial model row 1"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/SUJ2G2UMJQR7PMBX_1759210435.gif" alt="Human requestor row 1"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/DYP2J9CYL7X46RLQ_1759860375.gif" alt="Human other row 1"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/claude-sonnet-4.5_cadquery-script_1771441490.gif" alt="Claude row 1"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/gemini-3-pro_cadquery-script_1771005086.gif" alt="Gemini row 1"></td>
+            <td class="empty-cell">—</td>
+          </tr>
+          <!-- Row 2: 3YH2WFSRM22W7DKT_1769160931 -->
+          <tr>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/3YH2WFSRM22W7DKT_1769160948.gif" alt="Initial model row 2"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/3YH2WFSRM22W7DKT_1769162254.gif" alt="Human requestor row 2"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/SUJ2G2UMJQR7PMBX_1770176772.gif" alt="Human other row 2"></td>
+            <td class="empty-cell">—</td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/gemini-3-pro_cadquery-script_1771633619.gif" alt="Gemini row 2"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/gpt-5.2_cadquery-script_1771109256.gif" alt="GPT row 2"></td>
+          </tr>
+          <!-- Row 3: B7A2N74ZJBF9MZHU_1770251861 -->
+          <tr>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/B7A2N74ZJBF9MZHU_1770251899.gif" alt="Initial model row 3"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/B7A2N74ZJBF9MZHU_1770252000.gif" alt="Human requestor row 3"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/DYP2J9CYL7X46RLQ_1770358479.gif" alt="Human other row 3"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/claude-sonnet-4.5_cadquery-script_1771011055.gif" alt="Claude row 3"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/gemini-3-pro_cadquery-script_1771459682.gif" alt="Gemini row 3"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/gpt-5.2_cadquery-script_1771080665.gif" alt="GPT row 3"></td>
+          </tr>
+          <!-- Row 4: F332D3FXML85WLR2_1770192609 -->
+          <tr>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/F332D3FXML85WLR2_1770192665.gif" alt="Initial model row 4"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/F332D3FXML85WLR2_1770193370.gif" alt="Human requestor row 4"></td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/4S7JQK6ZQMAD25GL_1770285324.gif" alt="Human other row 4"></td>
+            <td class="empty-cell">—</td>
+            <td class="empty-cell">—</td>
+            <td><img class="result-gif" src="img/videos/occ_render_gif/gpt-5.2_cadquery-script_1771059712.gif" alt="GPT row 4"></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="img-caption" style="margin-top:0.6rem">Renders of model outputs. "Initial model" shows the starting state before editing. Human and AI results shown per row (request). Empty cells indicate no valid BREP file was generated for that model on that request.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="section section-alt">
+  <div class="section-inner">
+    <div class="blue-rule"></div>
+    <h2>Measuring editing performance</h2>
+    <p class="section-lead">
+      We evaluated model outputs with feature-based metrics, 3D volumetric metrics, VLM and human evaluations. Human evaluations revealed a striking gap between even the best AI model (GPT 5.2) and human baselines. While VLM evaluations and automatic metrics provided a rough sense of model performance, they did not correlate strongly with ratings from CAD experts — highlighting the necessity of human evaluations until better metrics are developed. We hope this benchmark gives the community a clear target to aim for as models improve.
+    </p>
+    <!-- <img src="img/table_screenshot.png" alt="Model performance results table" class="table-img" /> -->
+
+    <div class="leaderboard-wrap">
+      <div class="leaderboard-title">Leaderboard</div>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th rowspan="2"></th>
+            <th colspan="4" class="group-header">Automatic metrics</th>
+            <!-- <th colspan="3" class="group-header">VLM eval</th> -->
+            <th colspan="3" class="group-header">Human eval</th>
+          </tr>
+          <tr>
+            <th>Chamfer-dist ↓</th>
+            <th>Voxel-IoU ↑</th>
+            <th>DINO-sim ↑</th>
+            <th>Validity ↑</th>
+            <!-- <th>Instruction ↑</th> -->
+            <!-- <th>Quality ↑</th> -->
+            <!-- <th>Acceptance ↑</th> -->
+            <th>Instruction ↑</th>
+            <th>Quality ↑</th>
+            <th>Acceptance ↑</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-requestor">
+            <td>GT Human requestor</td>
+            <td>—</td><td>—</td><td>—</td><td>—</td>
+            <!-- <td>0.56</td><td>0.70</td><td>0.47</td> -->
+            <td>0.74</td><td>0.66</td><td>0.82</td>
+          </tr>
+          <tr class="row-baseline">
+            <td>Human baseline</td>
+            <td>22</td><td>0.76</td><td>0.93</td><td>1.00</td>
+            <!-- <td>0.55</td><td>0.70</td><td>0.45</td> -->
+            <td>0.74</td><td>0.66</td><td>0.78</td>
+          </tr>
+          <tr class="row-gpt">
+            <td>GPT 5.2</td>
+            <td><strong>50</strong></td><td><strong>0.57</strong></td><td><strong>0.66</strong></td><td><strong>0.99</strong></td>
+            <!-- <td><strong>0.50</strong></td><td><strong>0.66</strong></td><td><strong>0.30</strong></td> -->
+            <td><strong>0.48</strong></td><td><strong>0.39</strong></td><td><strong>0.25</strong></td>
+          </tr>
+          <tr class="row-gemini">
+            <td>Gemini-3-Pro</td>
+            <td>110</td><td>0.30</td><td>0.36</td><td>0.58</td>
+            <!-- <td>0.40</td><td>0.56</td><td>0.19</td> -->
+            <td>0.27</td><td>0.16</td><td>0.10</td>
+          </tr>
+          <tr class="row-claude">
+            <td>Claude Sonnet 4.5</td>
+            <td>54</td><td>0.18</td><td>0.25</td><td>0.42</td>
+            <!-- <td>0.35</td><td>0.50</td><td>0.15</td> -->
+            <td>0.22</td><td>0.10</td><td>0.05</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      We provide code to compute the automatic metrics. If you would like to have your model added to the leaderboard, please <a href="#resources">send us your model outputs</a> and we will gladly coordinate human evaluations. 
+    </p>
+    <p style="margin-top:1rem">
+    We will be keeping this leaderboard up to date as models and harnesses/tooling improve.
+    </p>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources" class="section">
+  <div class="section-inner">
+    <div class="blue-rule"></div>
+    <h2>Resources</h2>
+    <p class="section-lead">Access the paper, code, and dataset for neuralCAD-Edit.</p>
+
+    <div class="resources-grid">
+      <a href="https://arxiv.org/abs/2604.16170" class="resource-card" target="_blank" rel="noopener">
+        <div class="resource-type">Publication</div>
+        <div class="resource-title">Paper</div>
+        <div class="resource-desc">Full research paper describing the benchmark, dataset collection, and evaluation methodology.</div>
+      </a>
+      <a href="https://github.com/AutodeskAILab/neuralCAD-Edit" class="resource-card" target="_blank" rel="noopener">
+        <div class="resource-type">Repository</div>
+        <div class="resource-title">Code</div>
+        <div class="resource-desc">Code for accessing and viewing the data, model harnesses and scripts for running the benchmark.</div>
+      </a>
+      <a href="https://huggingface.co/datasets/autodesk/neuralCAD-Edit" class="resource-card" target="_blank" rel="noopener">
+        <div class="resource-type">Dataset</div>
+        <div class="resource-title">Data</div>
+        <div class="resource-desc">Download the full benchmark dataset including requests, edits, and models.</div>
+      </a>
+    </div>
+
+    <div class="cite-wrap">
+      <div class="cite-header">Cite this work</div>
+      <div class="cite-body">
+        <pre>@inproceedings{perrett2026neuralcadedit,
+  title={neuralCAD-Edit: An Expert Benchmark for Multimodal-Instructed 3D CAD Model Editing},
+  author={Perrett, Toby and Bourchard, Matthew and McCarthy, William},
+  booktitle={arXiv preprint arXiv:2604.16170},
+  year={2026}
+}</pre>
+      </div>
+    </div>
+
+    <div style="margin-top: 3rem;">
+      <h3>Contact</h3>
+      <p class="section-lead" style="margin-top: 0.5rem;">For questions about the benchmark or dataset, please reach out:</p>
+      <div class="contact-list">
+        <a href="mailto:toby.perrett@autodesk.com" class="contact-chip">toby.perrett@autodesk.com</a>
+        <a href="mailto:william.mccarthy@autodesk.com" class="contact-chip">william.mccarthy@autodesk.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>&copy; 2026 Autodesk Inc. All rights reserved. &nbsp;|&nbsp; <a href="https://www.autodesk.com/company/legal-notices-trademarks/privacy-statement" target="_blank" rel="noopener">Privacy</a> &nbsp;|&nbsp; <a href="https://www.autodesk.com/company/legal-notices-trademarks" target="_blank" rel="noopener">Legal</a></p>
+</footer>
+
+</body>
+</html>

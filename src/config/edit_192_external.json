@@ -1,0 +1,214 @@
+{
+    "annotations_dir": {
+        "type": "local",
+        "paths": [
+        ]
+    },
+    "assets_dir": {
+        "type": "local",
+        "paths": [
+        ]
+    },
+    "models_dir": {
+        "type": "local",
+        "paths": [
+        ]
+    },
+    "storage_dir": {
+        "type": "local",
+        "path": "/Users/perrett/fusion_data/edit_database/edit_192_external"
+    },
+    "groundtruth_dir": {
+        "type": "local",
+        "paths": [
+        ]
+    },
+    "db_name": "v2_db",
+    "video_formats": [
+        {
+            "fps": 30,
+            "resolution": 720,
+            "audio": true
+        }
+    ],
+    "dino_model": "facebook/dinov2-base",
+    "dino_device": "cpu",
+    "dino_batch_size": 16,
+    "clip_model": "openai/clip-vit-base-patch32",
+    "clip_device": "cpu",
+    "clip_batch_size": 16,
+    "edit_models": {
+    },
+    "rating_models": {
+        "gemini-3-pro_30-720_edit-rating-6-img":{
+            "skip": true,
+            "family": "gemini",
+            "model": "gemini-3-pro-preview",
+            "thinking_level": "low",
+            "mode": "rating_obj",
+            "extension": "obj",
+            "backend": "ffmpeg",
+            "system_prompt": "You are an expert CAD model evaluator.",
+            "prompt": "Here is a video of an edit instruction, 6 images (front, back, left, right, top, bottom) of the original CAD model, and 6 images of the edited CAD model. Return a json with the following fields:\nscore-instruction-understanding: a score indicating how well the instruction has been understood and followed. 1 - Makes things worse or goes in completely the wrong direction. 2 - Does nothing. 3 - Makes an attempt, demonstrates a rough understanding of the request but many parts incorrect or incomplete. 4 - Mostly does what is asked, but with noticeable errors or omissions. 5 - Does what is asked, with small errors or omissions. 6 - Perfect - follows the request precisely with no errors or omissions. 7 - Above and beyond - perfect with helpful extras that a thoughtful expert designer would include. \nscore-quality: a score indicating the quality of the work done.1 - No model or edit produced. 2 - Very poor - erroneous model, impossible geometry, overlapping geometries, incomplete sketches etc. 3 - Poor - simplistic, blocky. 4 - Average - acceptable first pass. 5 - Good attempt with room for improvement. 6 - High quality work, as you’d expect from an experienced designer. 7 - Perfect - extremely polished design.\nDo not include any other text or formatting.",
+            "fps": 30,
+            "resolution": 720,
+            "audio": true,
+            "views_request": [
+                "front",
+                "back",
+                "left",
+                "right",
+                "top",
+                "bottom"
+            ],
+            "views_edit": [
+                "front",
+                "back",
+                "left",
+                "right",
+                "top",
+                "bottom"
+            ],  
+            "request_types": [
+                "edit"
+            ],
+            "rating_function": "run_rating_video_images"
+        },
+        "gpt-5.2_edit-rating-6-img":{
+            "skip": true,
+            "family": "openai",
+            "model": "gpt-5.2-2025-12-11",
+            "reasoning_level": "low",
+            "mode": "rating_obj",
+            "extension": "obj",
+            "backend": "decord",
+            "system_prompt": "You are an expert CAD model evaluator.",
+            "prompt": "Here is a video of an edit instruction, 6 images (front, back, left, right, top, bottom) of the original CAD model, and 6 images of the edited CAD model. Return a json with the following fields:\nscore-instruction-understanding: a score indicating how well the instruction has been understood and followed. 1 - Makes things worse or goes in completely the wrong direction. 2 - Does nothing. 3 - Makes an attempt, demonstrates a rough understanding of the request but many parts incorrect or incomplete. 4 - Mostly does what is asked, but with noticeable errors or omissions. 5 - Does what is asked, with small errors or omissions. 6 - Perfect - follows the request precisely with no errors or omissions. 7 - Above and beyond - perfect with helpful extras that a thoughtful expert designer would include. \nscore-quality: a score indicating the quality of the work done.1 - No model or edit produced. 2 - Very poor - erroneous model, impossible geometry, overlapping geometries, incomplete sketches etc. 3 - Poor - simplistic, blocky. 4 - Average - acceptable first pass. 5 - Good attempt with room for improvement. 6 - High quality work, as you’d expect from an experienced designer. 7 - Perfect - extremely polished design.\nDo not include any other text or formatting.",
+            "fps": 30,
+            "subsample_every": 30,
+            "resolution": 720,
+            "audio": true,
+            "views_request": [
+                "front",
+                "back",
+                "left",
+                "right",
+                "top",
+                "bottom"
+            ],
+            "views_edit": [
+                "front",
+                "back",
+                "left",
+                "right",
+                "top",
+                "bottom"
+            ],  
+            "request_types": [
+                "edit"
+            ],
+            "rating_function": "run_rating_video_images"
+        },
+        "claude-sonnet-4.5_edit-rating-6-img":{
+            "skip": false,
+            "family": "anthropic",
+            "model": "claude-sonnet-4-5",
+            "thinking": {
+                "type": "disabled"
+            },
+            "backend": "decord",
+            "system_prompt": "You are an expert CAD model evaluator.",
+            "prompt": "Here is a video of an edit instruction, 6 images (front, back, left, right, top, bottom) of the original CAD model, and 6 images of the edited CAD model. Return a json with the following fields:\nscore-instruction-understanding: a score indicating how well the instruction has been understood and followed. 1 - Makes things worse or goes in completely the wrong direction. 2 - Does nothing. 3 - Makes an attempt, demonstrates a rough understanding of the request but many parts incorrect or incomplete. 4 - Mostly does what is asked, but with noticeable errors or omissions. 5 - Does what is asked, with small errors or omissions. 6 - Perfect - follows the request precisely with no errors or omissions. 7 - Above and beyond - perfect with helpful extras that a thoughtful expert designer would include. \nscore-quality: a score indicating the quality of the work done.1 - No model or edit produced. 2 - Very poor - erroneous model, impossible geometry, overlapping geometries, incomplete sketches etc. 3 - Poor - simplistic, blocky. 4 - Average - acceptable first pass. 5 - Good attempt with room for improvement. 6 - High quality work, as you’d expect from an experienced designer. 7 - Perfect - extremely polished design.\nDo not include any other text or formatting.",
+            "fps": 30,
+            "subsample_every": 30,
+            "resolution": 720,
+            "downsample_vertical_resolution": 480,
+            "max_frames": 72,
+            "audio": true,
+            "views_request": [
+                "front",
+                "back",
+                "left",
+                "right",
+                "top",
+                "bottom"
+            ],
+            "views_edit": [
+                "front",
+                "back",
+                "left",
+                "right",
+                "top",
+                "bottom"
+            ],  
+            "request_types": [
+                "edit"
+            ],
+            "rating_function": "run_rating_video_images"
+        }
+    },
+    "benchmark_eval_users": {
+        "edit": [
+            "gt human",
+            "other human",
+            "gemini-3-pro_cadquery-script",
+            "gpt-5.2_cadquery-script",
+            "claude-sonnet-4.5_cadquery-script"
+        ]
+    },
+    "primary_result_keys": {
+        "edit_easy": "chamfer_similarity",
+        "edit_medium": "chamfer_similarity",
+        "edit_hard": "chamfer_similarity"
+    },
+    "benchmark_models":{
+        "gemini-3-pro_cadquery-script":{
+            "family": "gemini",
+            "model": "gemini-3-pro-preview",
+            "thinking_level": "high",
+            "backend": "ffmpeg",
+            "system_prompt": "You are an expert CadQuery function generator.",
+            "fps": 30,
+            "resolution": 720,
+            "audio": true,
+            "request_types": [
+            ],
+            "1m_token_cost_input": 2.00,
+            "1m_token_cost_output": 12.00,
+            "function": "cadquery_script"
+        },      
+        "gpt-5.2_cadquery-script":{
+            "family": "openai",
+            "model": "gpt-5.2-2025-12-11",
+            "reasoning_level": "medium",
+            "backend": "decord",
+            "system_prompt": "You are an expert CadQuery function generator.",
+            "fps": 1,
+            "resolution": 720,
+            "audio": false,
+            "request_types": [
+            ],
+            "1m_token_cost_input": 1.75,
+            "1m_token_cost_output": 14.00,
+            "function": "cadquery_script"
+        },
+        "claude-sonnet-4.5_cadquery-script":{
+            "family": "anthropic",
+            "model": "claude-sonnet-4-5",
+            "thinking": {
+                "type": "enabled",
+                "budget_tokens": 2000
+            },
+            "backend": "decord",
+            "system_prompt": "You are an expert CadQuery function generator.",
+            "fps": 1,
+            "resolution": 720,
+            "audio": false,
+            "request_types": [
+            ],
+            "1m_token_cost_input": 1.75,
+            "1m_token_cost_output": 14.00,
+            "function": "cadquery_script"
+        }
+    }
+}
