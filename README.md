@@ -1,6 +1,6 @@
 # neuralCAD-Edit
 
-This repo contains the code for neuralCAD-Edit, a 3D CAD editing dataset and benchmark introduced in the paper: [neuralCAD-Edit: An Expert Benchmark for Multimodal-Instructed 3D CAD Model Editing]()
+This repo contains the code for neuralCAD-Edit, a 3D CAD editing dataset and benchmark introduced in the paper: [neuralCAD-Edit: An Expert Benchmark for Multimodal-Instructed 3D CAD Model Editing](https://autodeskailab.github.io/neuralCAD-Edit/)
 
 ![fig_01](img/fig_1.png)
 
@@ -63,3 +63,14 @@ The dataset/benchmark is organised in a local mongita database with the followin
 All objects (e.g. step files) live outside the database in the file tree, and are pointed to by their relative filepaths from the database. See `src/notebooks/visualise_examples.ipynb` for example access patterns.
 
 ![Database Schema](img/database_schema.svg)
+
+### Citation
+
+```bibtex
+@inproceedings{perrett2026neuralcadedit,
+  title={neuralCAD-Edit: An Expert Benchmark for Multimodal-Instructed 3D CAD Model Editing},
+  author={Perrett, Toby and Bouchard, Matthew and McCarthy, William},
+  booktitle={arXiv preprint arXiv:2604.16170},
+  year={2026}
+}
+```
